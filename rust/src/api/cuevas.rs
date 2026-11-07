@@ -1,5 +1,7 @@
 //! Generador de cuevas para un juego 2D: autómata celular sobre una cuadrícula.
 //! Se llama desde Flutter con flutter_rust_bridge (ver el README del laboratorio).
+// Rama inicio: borra esta línea cuando termines; solo calla los avisos de lo que todavía no escribes.
+#![allow(dead_code, unused_imports, unused_variables)]
 
 use std::collections::VecDeque;
 
@@ -26,33 +28,7 @@ pub fn generar_cueva(
     relleno_pct: u32,
     pasos: u32,
 ) -> Result<Mapa> {
-    if !(8..=512).contains(&ancho) || !(8..=512).contains(&alto) {
-        bail!("ancho y alto van de 8 a 512; llegó {ancho}x{alto}");
-    }
-    if !(30..=70).contains(&relleno_pct) || pasos > 10 {
-        bail!("relleno_pct va de 30 a 70 y pasos de 0 a 10");
-    }
-    let (w, h) = (ancho as usize, alto as usize);
-    let mut azar = Azar(semilla);
-    let mut celdas: Vec<u8> = (0..w * h)
-        .map(|i| {
-            let (x, y) = (i % w, i / w);
-            if es_borde(x, y, w, h) || azar.hasta(100) < relleno_pct {
-                PARED
-            } else {
-                SUELO
-            }
-        })
-        .collect();
-    for _ in 0..pasos {
-        celdas = suavizar(&celdas, w, h);
-    }
-    dejar_la_region_mas_grande(&mut celdas, w, h);
-    Ok(Mapa {
-        ancho,
-        alto,
-        celdas,
-    })
+    todo!("Paso 2: valida, siembra el ruido, suaviza y deja la región más grande")
 }
 
 fn es_borde(x: usize, y: usize, w: usize, h: usize) -> bool {
@@ -61,79 +37,22 @@ fn es_borde(x: usize, y: usize, w: usize, h: usize) -> bool {
 
 /// Un paso del autómata: con 5 o más vecinas pared, la celda es pared; con 3 o menos, suelo.
 fn suavizar(celdas: &[u8], w: usize, h: usize) -> Vec<u8> {
-    let mut nuevas = celdas.to_vec();
-    for y in 0..h {
-        for x in 0..w {
-            let i = y * w + x;
-            if es_borde(x, y, w, h) {
-                nuevas[i] = PARED; // el borde siempre es pared: nadie se sale del mapa
-                continue;
-            }
-            let vecinas = vecinas_pared(celdas, w, x, y);
-            if vecinas >= 5 {
-                nuevas[i] = PARED;
-            } else if vecinas <= 3 {
-                nuevas[i] = SUELO;
-            }
-        }
-    }
-    nuevas
+    todo!("Paso 3: un paso del autómata celular")
 }
 
 /// Cuántas de las 8 celdas alrededor de (x, y) son pared. Solo para celdas que no son borde.
 fn vecinas_pared(celdas: &[u8], w: usize, x: usize, y: usize) -> u32 {
-    let mut n = 0;
-    for vy in y - 1..=y + 1 {
-        for vx in x - 1..=x + 1 {
-            if (vx, vy) != (x, y) && celdas[vy * w + vx] == PARED {
-                n += 1;
-            }
-        }
-    }
-    n
+    todo!("Paso 3: cuenta las 8 vecinas que son pared")
 }
 
 /// Las zonas de suelo conectadas (arriba, abajo, izquierda, derecha), cada una como lista de índices.
 pub(crate) fn regiones(celdas: &[u8], w: usize, h: usize) -> Vec<Vec<usize>> {
-    let mut vista = vec![false; celdas.len()];
-    let mut todas = Vec::new();
-    for inicio in 0..celdas.len() {
-        if celdas[inicio] != SUELO || vista[inicio] {
-            continue;
-        }
-        let mut region = Vec::new();
-        let mut cola = VecDeque::from([inicio]);
-        vista[inicio] = true;
-        while let Some(i) = cola.pop_front() {
-            region.push(i);
-            let (x, y) = (i % w, i / w);
-            let vecinas = [
-                (x > 0).then(|| i - 1),
-                (x + 1 < w).then(|| i + 1),
-                (y > 0).then(|| i - w),
-                (y + 1 < h).then(|| i + w),
-            ];
-            for v in vecinas.into_iter().flatten() {
-                if celdas[v] == SUELO && !vista[v] {
-                    vista[v] = true;
-                    cola.push_back(v);
-                }
-            }
-        }
-        todas.push(region);
-    }
-    todas
+    todo!("Paso 4: búsqueda en anchura de las zonas de suelo")
 }
 
 /// Rellena con pared todas las zonas de suelo menos la más grande: así el jugador llega a todo el mapa.
 fn dejar_la_region_mas_grande(celdas: &mut [u8], w: usize, h: usize) {
-    let mut todas = regiones(celdas, w, h);
-    todas.sort_by_key(|r| std::cmp::Reverse(r.len()));
-    for region in todas.iter().skip(1) {
-        for &i in region {
-            celdas[i] = PARED;
-        }
-    }
+    todo!("Paso 4: rellena con pared todas las zonas menos la más grande")
 }
 
 /// SplitMix64: pequeño y repetible.
