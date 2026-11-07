@@ -1,0 +1,10 @@
+[package]
+name = "cuevas"
+version = "0.1.0"
+edition = "2024"
+
+# Solo la lógica: aquí la pruebas con cargo test. tool/crear_app.sh copia src/api/cuevas.rs
+# al crate que genera flutter_rust_bridge_codegen create.
+
+[dependencies]
+anyhow = "1.0.104"

@@ -1,0 +1,4 @@
+# Rust
+target/
+# La app que genera tool/crear_app.sh (se crea en tu computadora, no va al repositorio)
+cuevas_app/
